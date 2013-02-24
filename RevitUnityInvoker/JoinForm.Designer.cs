@@ -39,9 +39,10 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(206, 45);
+            this.button1.Location = new System.Drawing.Point(275, 55);
+            this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.Size = new System.Drawing.Size(100, 28);
             this.button1.TabIndex = 0;
             this.button1.Text = "Join";
             this.button1.UseVisualStyleBackColor = true;
@@ -53,16 +54,18 @@
             this.comboBoxServers.FormattingEnabled = true;
             this.comboBoxServers.Items.AddRange(new object[] {
             "--- Select a Host From The List ---"});
-            this.comboBoxServers.Location = new System.Drawing.Point(12, 45);
+            this.comboBoxServers.Location = new System.Drawing.Point(16, 55);
+            this.comboBoxServers.Margin = new System.Windows.Forms.Padding(4);
             this.comboBoxServers.Name = "comboBoxServers";
-            this.comboBoxServers.Size = new System.Drawing.Size(188, 21);
+            this.comboBoxServers.Size = new System.Drawing.Size(249, 24);
             this.comboBoxServers.TabIndex = 1;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(206, 16);
+            this.button2.Location = new System.Drawing.Point(275, 20);
+            this.button2.Margin = new System.Windows.Forms.Padding(4);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.Size = new System.Drawing.Size(100, 28);
             this.button2.TabIndex = 2;
             this.button2.Text = "Set Server";
             this.button2.UseVisualStyleBackColor = true;
@@ -70,27 +73,30 @@
             // 
             // textBoxServerIP
             // 
-            this.textBoxServerIP.Location = new System.Drawing.Point(100, 19);
+            this.textBoxServerIP.Location = new System.Drawing.Point(133, 23);
+            this.textBoxServerIP.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxServerIP.Name = "textBoxServerIP";
-            this.textBoxServerIP.Size = new System.Drawing.Size(100, 20);
+            this.textBoxServerIP.Size = new System.Drawing.Size(132, 22);
             this.textBoxServerIP.TabIndex = 3;
             this.textBoxServerIP.Text = "127.0.0.1";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 22);
+            this.label1.Location = new System.Drawing.Point(17, 27);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(81, 13);
+            this.label1.Size = new System.Drawing.Size(106, 17);
             this.label1.TabIndex = 4;
             this.label1.Text = "Database Host:";
             // 
             // buttonSync
             // 
             this.buttonSync.Enabled = false;
-            this.buttonSync.Location = new System.Drawing.Point(12, 72);
+            this.buttonSync.Location = new System.Drawing.Point(16, 89);
+            this.buttonSync.Margin = new System.Windows.Forms.Padding(4);
             this.buttonSync.Name = "buttonSync";
-            this.buttonSync.Size = new System.Drawing.Size(134, 23);
+            this.buttonSync.Size = new System.Drawing.Size(179, 28);
             this.buttonSync.TabIndex = 5;
             this.buttonSync.Text = "Sync";
             this.buttonSync.UseVisualStyleBackColor = true;
@@ -99,9 +105,10 @@
             // buttonLogout
             // 
             this.buttonLogout.Enabled = false;
-            this.buttonLogout.Location = new System.Drawing.Point(154, 72);
+            this.buttonLogout.Location = new System.Drawing.Point(205, 89);
+            this.buttonLogout.Margin = new System.Windows.Forms.Padding(4);
             this.buttonLogout.Name = "buttonLogout";
-            this.buttonLogout.Size = new System.Drawing.Size(127, 23);
+            this.buttonLogout.Size = new System.Drawing.Size(169, 28);
             this.buttonLogout.TabIndex = 6;
             this.buttonLogout.Text = "Logout";
             this.buttonLogout.UseVisualStyleBackColor = true;
@@ -109,9 +116,9 @@
             // 
             // JoinForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(291, 108);
+            this.ClientSize = new System.Drawing.Size(388, 133);
             this.Controls.Add(this.buttonLogout);
             this.Controls.Add(this.buttonSync);
             this.Controls.Add(this.label1);
@@ -119,8 +126,10 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.comboBoxServers);
             this.Controls.Add(this.button1);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "JoinForm";
             this.Text = "JoinForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.JoinForm_FormClosing);
             this.Load += new System.EventHandler(this.JoinForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

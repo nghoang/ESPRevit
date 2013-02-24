@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using CrawlerLib.Net;
+using System.Threading;
 
 namespace RevitUnityInvoker
 {
@@ -16,6 +17,8 @@ namespace RevitUnityInvoker
         List<string> sids;
         List<string> ips;
         public IServiceClient main= null;
+        Thread thUpdateServer;
+        UpdateServer updateserver;
 
         public JoinForm()// why no void here? it is a constructor and no return value. (void: no need to return value )for initialization?(right click to go to defination) what work sequence of this code?
         {
@@ -24,10 +27,15 @@ namespace RevitUnityInvoker
 
         private void JoinForm_Load(object sender, EventArgs e)// if it shows, we will get here
         {
-            
-            
+            if (thUpdateServer == null)
+            {
+                updateserver = new UpdateServer();
+                updateserver.main = this;
+                thUpdateServer = new Thread(new ThreadStart(updateserver.run));
+            }
+            thUpdateServer.Start();
         }
-
+        
         private void SetServer()
         {
             AppConst.SERVER_DOMAIN = "http://" + textBoxServerIP.Text;
@@ -107,11 +115,17 @@ namespace RevitUnityInvoker
 
         private void button4_Click(object sender, EventArgs e)
         {
+            updateserver.status = 0;
             main.SetServer("", "");
 
             buttonSync.Enabled = false;
             buttonLogout.Enabled = false;
             this.Close();
+        }
+
+        private void JoinForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            updateserver.status = 0;
         }
 
         //private void button2_Click(object sender, EventArgs e)
