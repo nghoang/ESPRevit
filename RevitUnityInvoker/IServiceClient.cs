@@ -9,6 +9,6 @@ namespace RevitUnityInvoker
     {
         void SetServer(string serverip, string serverid);
         void FinishedJoinForm();
-        void SyncModel();
+        string SyncModel();
     }
 }

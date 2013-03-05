@@ -35,6 +35,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.buttonSync = new System.Windows.Forms.Button();
             this.buttonLogout = new System.Windows.Forms.Button();
+            this.listBoxLog = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
             // button1
@@ -114,11 +115,21 @@
             this.buttonLogout.UseVisualStyleBackColor = true;
             this.buttonLogout.Click += new System.EventHandler(this.button4_Click);
             // 
+            // listBoxLog
+            // 
+            this.listBoxLog.FormattingEnabled = true;
+            this.listBoxLog.ItemHeight = 16;
+            this.listBoxLog.Location = new System.Drawing.Point(16, 124);
+            this.listBoxLog.Name = "listBoxLog";
+            this.listBoxLog.Size = new System.Drawing.Size(359, 164);
+            this.listBoxLog.TabIndex = 7;
+            // 
             // JoinForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(388, 133);
+            this.ClientSize = new System.Drawing.Size(388, 301);
+            this.Controls.Add(this.listBoxLog);
             this.Controls.Add(this.buttonLogout);
             this.Controls.Add(this.buttonSync);
             this.Controls.Add(this.label1);
@@ -126,6 +137,7 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.comboBoxServers);
             this.Controls.Add(this.button1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "JoinForm";
             this.Text = "JoinForm";
@@ -145,5 +157,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button buttonSync;
         private System.Windows.Forms.Button buttonLogout;
+        private System.Windows.Forms.ListBox listBoxLog;
     }
 }

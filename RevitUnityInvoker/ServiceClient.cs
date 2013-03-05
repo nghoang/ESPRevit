@@ -71,6 +71,7 @@ namespace RevitUnityInvoker   //define new namespace,it is not neccessary to use
             //I don't understand this line, but I know that I need to get uidoc to access component in revit for example at line "collector = new FilteredElementCollector(uidoc.Document);", I get collection of walls.
             //and in order to get uidoc, we need to use "revit.Application.ActiveUIDocument". I got this in manual
             //end modification
+            uidoc.ActiveView.Scale = 1;
 
             //we cannot change the return
             return Autodesk.Revit.UI.Result.Succeeded;//page 26 in Revit SDK Manual
@@ -143,15 +144,36 @@ namespace RevitUnityInvoker   //define new namespace,it is not neccessary to use
             }
         }
 
-        public void SyncModel()//  in SyncForm.cs
+        string GenerateParameterString(ParameterSet paras)
         {
-            ExportToFbx(); // call the function below
+            string res = "";
+            foreach (Parameter p in paras)
+            {
+                res += p.Definition.Name + ": " + GetParameterInformation(paras, uidoc.Document, p.Definition.Name) + "\n";
+            }
+            return res;
         }
 
-        private void ExportToFbx()
+        public string SyncModel()//  in SyncForm.cs
+        {
+            return ExportToFbx(); // call the function below
+        }
+
+        public void CalculateArea(ParameterSet paras, Document doc, ref double building_width, ref double building_length)
+        {
+            double C = double.Parse(GetParameterInformation(paras, doc, "Perimeter"))/1000;
+            double A = double.Parse(GetParameterInformation(paras, doc, "Area").Replace(" m²", ""));
+            building_width = (C / 2 + Math.Sqrt(C * C / 4 - 4 * A)) / 2;
+            building_length = C/2 - building_width;
+        }
+
+        private string ExportToFbx()
         {
             try
             {
+                double building_width = 0;
+                double building_length = 0;
+
                 ElementCategoryFilter eleFilter;//the class varies from Autodesk.Revit.DB? y
                 FilteredElementCollector collector;//the class varies from Autodesk.Revit.DB? y
                 IList<Element> filteredObject;// the interface of System.Collections.Generic? y where did it state it is the interface? in .net lib
@@ -168,33 +190,16 @@ namespace RevitUnityInvoker   //define new namespace,it is not neccessary to use
                 //we create filter instance and all objects instance. then we pass filter into all objects to get filteredbojects.
                 foreach (Element e in filteredObject)//go throught each item/objects in revit model
                 {
-                    commentParameter = "";// reset semantic information in every object every time
-                    foreach (Parameter para in e.Parameters)//loop each property or parameters on the left column revit 
-                    {
-                        try
-                        {
-                            commentParameter = GetParameterInformation(para, uidoc.Document).ToLower();// right of left column
-                            if (commentParameter == "emergency")
-                                break; // if yes, go to the if emergency, if no, go to else
-                        }
-                        catch (Exception ex) // 
-                        {
-                            //cannot get info
-                        }
-                    }
+                    commentParameter = GetParameterInformation(e.Parameters, uidoc.Document, "Comments");
+                    string level = GetParameterInformation(e.Parameters, uidoc.Document, "Level");
 
-                    string level = "";// reset semantic information in every object every time
-                    foreach (Parameter para in e.Parameters)//loop each property or parameters on the left column revit 
+                    if (level.ToLower() == "level 0")
                     {
-                        try
+                        CalculateArea(e.Parameters, uidoc.Document, ref building_width, ref building_length);
+                        if (building_width > 100 || building_length > 100)
                         {
-                            level = GetParameterInformation(para, uidoc.Document).ToLower();// right of left column
-                            if (level.StartsWith("level"))
-                                break; // if yes, go to the if emergency, if no, go to else
-                        }
-                        catch (Exception ex) // 
-                        {
-                            //cannot get info
+                            TaskDialog.Show("Error", "W: " + building_width + ", L: " + building_length + ". Size is too big for our application.");
+                            return "Size Error.";
                         }
                     }
 
@@ -242,7 +247,8 @@ namespace RevitUnityInvoker   //define new namespace,it is not neccessary to use
                     //else if (status == "somethingelse")
                     //content += e.Id + "-somethingelse\n";
                     else*/
-                        semanticInfo += e.Id + "-obstacle\n";
+                        
+                    semanticInfo += e.Id + "-obstacle\n";
                 }
 			
 				//for doors
@@ -251,26 +257,15 @@ namespace RevitUnityInvoker   //define new namespace,it is not neccessary to use
                 filteredObject = collector.WherePasses(eleFilter).WhereElementIsNotElementType().ToElements();
                 foreach (Element e in filteredObject)
                 {
-                    foreach (Parameter para in e.Parameters)
-                    {
-                        try
-                        {
-                            commentParameter = GetParameterInformation(para, uidoc.Document).ToLower();
-                            if (commentParameter == "closed" || commentParameter == "opened")
-                                break;
-                        }
-                        catch (Exception ex)
-                        {
-                            //cannot get info
-                        }
-                    }
-					
+                    commentParameter = GetParameterInformation(e.Parameters, uidoc.Document, "Comments");
+
                     if (commentParameter == "closed")
                         semanticInfo += e.Id + "-obstacle\n";
                     else if (commentParameter == "opened")
                         semanticInfo += e.Id + "-openeddoor\n";
                     else
                         semanticInfo += e.Id + "-openeddoor\n"; // else mean the default status??? yes
+                    SetParameter(e.Parameters, "Comments", "test");
                 }
 
 
@@ -302,18 +297,23 @@ namespace RevitUnityInvoker   //define new namespace,it is not neccessary to use
                 NameValueCollection paras = new NameValueCollection();
                 paras.Add("sid", selectedSid);
                 paras.Add("act", "ClientSendModelFile");
-                client.UploadFileEx(path + "\\revitfbx\\building.fbx", AppConst.SERVER_DOMAIN + AppConst.SERVER_PATH, "building", null, paras);
-				
+                string web = client.UploadFileEx(path + "\\revitfbx\\building.fbx", AppConst.SERVER_DOMAIN + AppConst.SERVER_PATH, "building", null, paras);
+
+                if (web.Trim() != "")
+                    return "Unknown error";
+
                 paras = new NameValueCollection();
                 paras.Add("sid", selectedSid);
                 paras.Add("act", "ClientSendSemanticFile");
                 client.UploadFileEx(path + "\\revitfbx\\semantic.txt", AppConst.SERVER_DOMAIN + AppConst.SERVER_PATH, "semantic", null, paras);
 
+                return "done";
             }
 			///////////////////////////
             catch (Exception ex)
             {
                 TaskDialog.Show("Error", ex.Message);
+                return ex.Message;
             }
         }
 
@@ -325,51 +325,80 @@ namespace RevitUnityInvoker   //define new namespace,it is not neccessary to use
                 System.IO.Directory.CreateDirectory(subPath);
         }
 
-		//this function will get parameter information
-        String GetParameterInformation(Parameter para, Document document)
+        void SetParameter(ParameterSet paras, string defName, string value)
         {
-            string defName = para.Definition.Name;
-            if (defName != "Comments" && defName != "Level")
-                return "";
-
-            // Use different method to get parameter data according to the storage type
-            switch (para.StorageType)
+            foreach (Parameter p in paras)
             {
-                case StorageType.Double:
-                    //covert the number into Metric
-                    return para.AsValueString();
-                case StorageType.ElementId:
-                    //find out the name of the element
-                    Autodesk.Revit.DB.ElementId id = para.AsElementId();
-                    if (id.IntegerValue >= 0)
-                    {
-                        return document.get_Element(id).Name;
-                    }
-                    else
-                    {
-                        return id.IntegerValue.ToString();
-                    }
-                case StorageType.Integer:
-                    if (ParameterType.YesNo == para.Definition.ParameterType)
-                    {
-                        if (para.AsInteger() == 0)
+                if (p.Definition.Name == defName)
+                {
+                    p.SetValueString(value);
+                    return;
+                }
+            }
+        }
+
+		//this function will get parameter information
+        String GetParameterInformation(ParameterSet paras, Document document, string defName)
+        {
+            foreach (Parameter para in paras)
+            {
+                if (para.Definition.Name != defName)
+                    continue;
+
+                // Use different method to get parameter data according to the storage type
+                switch (para.StorageType)
+                {
+                    case StorageType.Double:
+                        //covert the number into Metric
+                        return para.AsValueString();
+                    case StorageType.ElementId:
+                        //find out the name of the element
+                        Autodesk.Revit.DB.ElementId id = para.AsElementId();
+                        if (id.IntegerValue >= 0)
                         {
-                            return "False";
+                            return document.get_Element(id).Name;
                         }
                         else
                         {
-                            return "True";
+                            return id.IntegerValue.ToString();
                         }
-                    }
-                    else
-                    {
-                        return para.AsInteger().ToString();
-                    }
-                case StorageType.String:
-                    return para.AsString();
-                default:
-                    return "Unexposed parameter.";
+                    case StorageType.Integer:
+                        if (ParameterType.YesNo == para.Definition.ParameterType)
+                        {
+                            if (para.AsInteger() == 0)
+                            {
+                                return "False";
+                            }
+                            else
+                            {
+                                return "True";
+                            }
+                        }
+                        else
+                        {
+                            return para.AsInteger().ToString();
+                        }
+                    case StorageType.String:
+                        if (para.AsString() == "null")
+                            return "";
+                        else
+                            return para.AsString();
+                    default:
+                        return "Unexposed parameter.";
+                }
             }
+            return "";
+        }
+
+        bool SetParameterInformation(ParameterSet paras, Document document, string defName, string value)
+        {
+            foreach (Parameter para in paras)
+            {
+                if (para.Definition.Name != defName)
+                    continue;
+                return para.SetValueString(value);
+            }
+            return false;
         }
     }
 }

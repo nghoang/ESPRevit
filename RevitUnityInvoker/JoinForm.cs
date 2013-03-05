@@ -41,8 +41,9 @@ namespace RevitUnityInvoker
             AppConst.SERVER_DOMAIN = "http://" + textBoxServerIP.Text;
         }
 
-        private void LoadHosts()
+        private int LoadHosts()
         {
+            int count_found = 0;
             try
             {
                 //request to PHP server to get available host. 
@@ -66,6 +67,7 @@ namespace RevitUnityInvoker
                         //111.111.111.11
                         sids.Add(subitems[0]);
                         ips.Add(subitems[1]);
+                        count_found++;
                         comboBoxServers.Items.Add(subitems[1]);//add ip to comboBoxServer
                     }
                     comboBoxServers.SelectedIndex = 0;
@@ -75,6 +77,7 @@ namespace RevitUnityInvoker
             {
                 MessageBox.Show("Server Error: " + ex.Message);
             }
+            return count_found;
         }
 
         private void button1_Click(object sender, EventArgs e)// if we click, we will get here
@@ -93,6 +96,8 @@ namespace RevitUnityInvoker
             //Here I callback to main process to assign selected host id and host ip. Please take a look at SetServer to see how it works.
             main.SetServer(ips[comboBoxServers.SelectedIndex], sids[comboBoxServers.SelectedIndex]);
 
+            AddLog("Server " + ips[comboBoxServers.SelectedIndex] + "(" +sids[comboBoxServers.SelectedIndex] + ") is selected");
+
             //Here I callback to main process to let it know that I finished the host selection. Take a look at FinishedJoinForm function in main process to see how it proceeds the next step
             main.FinishedJoinForm();
             
@@ -105,12 +110,19 @@ namespace RevitUnityInvoker
             buttonSync.Enabled = false;
             buttonLogout.Enabled = false;
             SetServer();
-            LoadHosts();
+            AddLog("Found " + LoadHosts() + " host(s)");
+        }
+
+        public void AddLog(string log)
+        {
+            listBoxLog.Items.Add(log);
+            listBoxLog.SelectedIndex = listBoxLog.Items.Count - 1;
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            main.SyncModel();
+            string res = main.SyncModel();
+            AddLog("Synchronized model: " + res);
         }
 
         private void button4_Click(object sender, EventArgs e)
