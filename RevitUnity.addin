@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <RevitAddIns>
-  <AddIn Type="Command">
-    <Assembly>C:\Users\HoangWin7\Documents\GitHub\ESPRevit\RevitUnityInvoker\bin\Debug\RevitUnityInvoker.dll</Assembly>
-    <AddInId>239BD853-36E4-461f-9171-C5ACEDA4E721</AddInId>
-    <FullClassName>RevitUnityInvoker.ServiceClient</FullClassName>
-    <Text>RevitUnityInvoker</Text>
-    <VendorId>ADSK</VendorId>
-    <VendorDescription>Autodesk, www.autodesk.com</VendorDescription>
-  </AddIn>
+<AddIn Type="Application">
+	<Name>Unity</Name>
+	<Assembly>C:\revitunity\AddPanel.dll</Assembly>
+	<AddInId>604B1052-F742-4951-8576-C261D1993107</AddInId>
+	<FullClassName>AddPanel.AddPanel</FullClassName>
+	<VendorId>ADSK</VendorId>
+	<VendorDescription>Autodesk, www.autodesk.com</VendorDescription> 
+</AddIn>
 </RevitAddIns>
